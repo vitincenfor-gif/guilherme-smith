@@ -187,8 +187,12 @@
       </div>
     </div>
   </div>
-  <div class="section-title">Estatísticas da Temporada</div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <div class="section-title" style="margin:0">Temporada Atual — <span id="cur-season-label" style="color:var(--gold)"></span></div>
+  </div>
   <div class="stats-grid" id="stats-grid"></div>
+  <div class="section-title">Temporada Anterior — <span id="prev-season-label" style="color:var(--muted)"></span></div>
+  <div class="stats-grid" id="prev-stats-grid" style="margin-bottom:28px"></div>
   <div class="charts-row">
     <div class="chart-card">
       <div class="chart-title">Gols por Competição</div>
@@ -473,9 +477,9 @@ function getDefaultData() {
 // HELPERS
 // ═══════════════════════════════════════════
 function getStats() {
-  const b = DATA.baseStats;
-  const m = DATA.matches;
-  if (!m.length) return { ...b, manual:false };
+  const cs = DATA.currentSeason || DATA.baseStats;
+  const m = DATA.matches || [];
+  if (!m.length) return { ...cs, manual:false };
   let goals=0,assists=0,shots=0,shot_t=0,pass_s=0,pass_n=0,drib=0,mins=0,rat_s=0,rat_n=0;
   m.forEach(g => {
     goals+=+g.goals||0; assists+=+g.assists||0; shots+=+g.shots||0;
@@ -484,8 +488,8 @@ function getStats() {
     if(+g.rating>0){rat_s+=+g.rating;rat_n++}
   });
   return { apps:m.length, goals, assists, shots, shots_target:shot_t,
-    pass_pct:pass_n?Math.round(pass_s/pass_n):b.pass_pct,
-    dribbles:drib, mins, rating:rat_n?(rat_s/rat_n).toFixed(1):b.rating, manual:true };
+    pass_pct:pass_n?Math.round(pass_s/pass_n):cs.pass_pct,
+    dribbles:drib, mins, rating:rat_n?(rat_s/rat_n).toFixed(1):cs.rating, manual:true };
 }
 
 function calcScore(stats) {
@@ -545,6 +549,8 @@ function renderHero() {
   ].map(t=>`<span class="tag">${t}</span>`).join('');
   document.getElementById('hero-value').textContent = '€ '+p.marketValue.toLocaleString('pt-BR')+' mil';
   document.getElementById('hero-season').textContent = 'TEMPORADA '+p.season;
+  if(document.getElementById('cur-season-label')) document.getElementById('cur-season-label').textContent = DATA.currentSeason?.label || p.season;
+  if(document.getElementById('prev-season-label')) document.getElementById('prev-season-label').textContent = DATA.prevSeason?.label || '2025–26';
   if(DATA.lastUpdated) document.getElementById('hero-updated').textContent = '🔄 Atualizado em '+DATA.lastUpdated;
 }
 
@@ -577,7 +583,28 @@ function renderOverview() {
   document.getElementById('stats-grid').innerHTML = items.map(c=>`
     <div class="stat-card"><div class="val">${c.val}</div><div class="lbl">${c.lbl}</div><div class="sub">${c.sub}</div></div>`).join('');
 
-  const comps = DATA.baseStats.byCompetition;
+  // Prev season grid
+  const ps = DATA.prevSeason || DATA.baseStats;
+  const prevItems = [
+    {val:ps.apps,lbl:'Jogos',sub:'disputados'},
+    {val:ps.goals,lbl:'Gols',sub:'+'+ps.assists+' assists'},
+    {val:ps.assists,lbl:'Assists',sub:'criação'},
+    {val:ps.goals+ps.assists,lbl:'Participações',sub:'em gols'},
+    {val:ps.mins||'—',lbl:'Minutos',sub:'jogados'},
+    {val:(ps.pass_pct||'—')+(ps.pass_pct?'%':''),lbl:'Passes %',sub:'média'},
+    {val:ps.dribbles||'—',lbl:'Dribles',sub:'completados'},
+    {val:ps.rating||'—',lbl:'Nota Média',sub:'por jogo'},
+    {val:ps.apps?(ps.goals/ps.apps).toFixed(2):'0.00',lbl:'Gols/Jogo',sub:'eficiência'},
+    {val:ps.apps?((ps.goals+ps.assists)/ps.apps).toFixed(2):'0.00',lbl:'Part./Jogo',sub:'impacto'},
+  ];
+  const prevGrid = document.getElementById('prev-stats-grid');
+  if(prevGrid) prevGrid.innerHTML = prevItems.map(c=>`
+    <div class="stat-card" style="opacity:0.6;border-color:rgba(255,255,255,0.06)">
+      <div class="val" style="font-size:26px;color:var(--muted)">${c.val}</div>
+      <div class="lbl">${c.lbl}</div><div class="sub">${c.sub}</div>
+    </div>`).join('');
+
+  const comps = DATA.currentSeason?.byCompetition || DATA.baseStats.byCompetition;
   mkChart('goalsCompChart',{
     type:'bar',
     data:{labels:comps.map(c=>c.emoji+' '+c.name),datasets:[
