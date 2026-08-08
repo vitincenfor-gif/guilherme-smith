@@ -739,7 +739,7 @@ function renderMatchList() {
     <div class="match-row">
       <span style="color:var(--muted);font-size:11px">${m.date}</span>
       <span style="font-weight:600">${m.opp} <span style="font-size:10px;color:var(--muted)">${m.comp}</span><br>
-        <span style="font-size:11px;color:var(--muted)">${m.result}</span></span>
+        <span style="font-size:11px;color:var(--muted)">${m.result}${m.yellow_card ? ' <span title="Cart\u00e3o amarelo" style="font-size:11px">\uD83D\uDFE8</span>' : ''}</span>${m.notes ? '<br><span style="font-size:10px;color:var(--gold);opacity:0.8;font-style:italic">' + m.notes + '</span>' : ''}</span>
       <span class="col-num">${m.mins}'</span>
       <span class="col-num" style="color:${+m.goals>0?'var(--gold)':'var(--muted)'}">${m.goals}</span>
       <span class="col-num" style="color:${+m.assists>0?'var(--blue)':'var(--muted)'}">${m.assists}</span>
