@@ -1,0 +1,67 @@
+{
+  "player": {
+    "name": "Guilherme Smith",
+    "fullName": "Guilherme Henriques da Silva Carvalho",
+    "dob": "11/06/2003",
+    "age": 23,
+    "height": "1,83m",
+    "foot": "Direito",
+    "nationality": "🇧🇷 Brasileiro",
+    "position": "Atacante / Ponta",
+    "number": 11,
+    "club": "Union Saint-Gilloise",
+    "league": "Belgian Pro League",
+    "contract": "Jun/2030",
+    "marketValue": 4000,
+    "season": "2025–26"
+  },
+  "targets": {
+    "goals": 10,
+    "assists": 5,
+    "apps": 30,
+    "mins": 2000,
+    "shots_target": 30,
+    "pass_pct": 78,
+    "dribbles": 40,
+    "rating": 7.0
+  },
+  "baseStats": {
+    "apps": 29,
+    "goals": 4,
+    "assists": 2,
+    "shots": 38,
+    "shots_target": 14,
+    "pass_pct": 74,
+    "dribbles": 42,
+    "mins": 1950,
+    "rating": 6.5,
+    "byCompetition": [
+      { "name": "Pro League",     "emoji": "🇧🇪", "apps": 22, "goals": 4, "assists": 2 },
+      { "name": "Copa Belga",     "emoji": "🏆", "apps": 5,  "goals": 0, "assists": 0 },
+      { "name": "Champions Leg.", "emoji": "⭐", "apps": 2,  "goals": 0, "assists": 0 }
+    ]
+  },
+  "matches": [],
+  "marketValueHistory": [
+    { "date": "Out/2021", "value": 100,  "club": "Zorya Luhansk" },
+    { "date": "Jun/2022", "value": 150,  "club": "Zorya (emp. Braga U23)" },
+    { "date": "Jan/2023", "value": 175,  "club": "Braga U23" },
+    { "date": "Jun/2023", "value": 100,  "club": "Zorya Luhansk" },
+    { "date": "Ago/2024", "value": 200,  "club": "Nõmme Kalju" },
+    { "date": "Dez/2024", "value": 450,  "club": "Nõmme Kalju" },
+    { "date": "Jun/2025", "value": 900,  "club": "Nõmme Kalju" },
+    { "date": "Ago/2025", "value": 1500, "club": "Union SG" },
+    { "date": "Dez/2025", "value": 2500, "club": "Union SG" },
+    { "date": "Jun/2026", "value": 3500, "club": "Union SG" },
+    { "date": "Ago/2026", "value": 4000, "club": "Union SG" }
+  ],
+  "career": [
+    { "season":"2021–22", "club":"Zorya Luhansk",        "country":"🇺🇦 Ucrânia",  "league":"Premier League Ucr.", "apps":0,   "goals":0,   "assists":0,   "cup_apps":1,   "cup_goals":0,   "euro_apps":0, "euro_goals":0 },
+    { "season":"2022–23", "club":"Braga U23 (emp.)",     "country":"🇵🇹 Portugal", "league":"Liga Sub-23",        "apps":"-", "goals":"-", "assists":"-", "cup_apps":"-", "cup_goals":"-", "euro_apps":"-","euro_goals":"-"},
+    { "season":"2023–24", "club":"Zorya Luhansk",        "country":"🇺🇦 Ucrânia",  "league":"Premier League Ucr.", "apps":1,   "goals":0,   "assists":0,   "cup_apps":0,   "cup_goals":0,   "euro_apps":0, "euro_goals":0 },
+    { "season":"2024",    "club":"Nõmme Kalju",          "country":"🇪🇪 Estônia",  "league":"Meistriliiga",       "apps":15,  "goals":7,   "assists":3,   "cup_apps":1,   "cup_goals":1,   "euro_apps":0, "euro_goals":0 },
+    { "season":"2025",    "club":"Nõmme Kalju",          "country":"🇪🇪 Estônia",  "league":"Meistriliiga",       "apps":20,  "goals":5,   "assists":2,   "cup_apps":3,   "cup_goals":2,   "euro_apps":4, "euro_goals":0 },
+    { "season":"2025–26", "club":"Union Saint-Gilloise", "country":"🇧🇪 Bélgica",  "league":"Belgian Pro League", "apps":22,  "goals":4,   "assists":2,   "cup_apps":5,   "cup_goals":0,   "euro_apps":2, "euro_goals":0, "current": true }
+  ],
+  "lastUpdated": "2026-08-08"
+}
