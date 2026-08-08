@@ -27,15 +27,15 @@
   },
   "currentSeason": {
     "label": "2026–27",
-    "apps": 2,
+    "apps": 3,
     "goals": 1,
-    "assists": 2,
+    "assists": 1,
     "shots": 2,
     "shots_target": 1,
     "pass_pct": 100,
     "dribbles": 0,
-    "mins": 102,
-    "rating": 7.7,
+    "mins": 173,
+    "rating": 7.1,
     "byCompetition": [
       {
         "name": "Pro League",
@@ -49,7 +49,14 @@
         "emoji": "⭐",
         "apps": 1,
         "goals": 0,
-        "assists": 2
+        "assists": 1
+      },
+      {
+        "name": "Supercopa",
+        "emoji": "🏆",
+        "apps": 1,
+        "goals": 0,
+        "assists": 0
       }
     ]
   },
@@ -146,14 +153,30 @@
       "season": "2026-27",
       "mins": 80,
       "goals": 0,
-      "assists": 2,
+      "assists": 1,
       "shots": 0,
       "shots_target": 0,
       "pass_pct": 0,
       "dribbles": 0,
       "rating": 0,
       "yellow_card": true,
-      "notes": "2 assists (Florucz 25' e 45'+4')"
+      "notes": "1 assist (Florucz 45'+4')"
+    },
+    {
+      "date": "2026-07-31",
+      "opp": "Club Brugge",
+      "result": "1-1 (p. 5-4)",
+      "comp": "Supercopa da Bélgica",
+      "season": "2026-27",
+      "mins": 71,
+      "goals": 0,
+      "assists": 0,
+      "shots": 0,
+      "shots_target": 0,
+      "pass_pct": 0,
+      "dribbles": 0,
+      "rating": 6.9,
+      "notes": "Substituído ao 71' (Niang). Union vence nos pênaltis 5-4 🏆"
     }
   ],
   "marketValueHistory": [
