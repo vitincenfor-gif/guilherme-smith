@@ -567,7 +567,7 @@ function mkChart(id, config, key) {
 function showTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active'); if(id==='compare') renderCompare();
+  document.getElementById('tab-'+name).classList.add('active'); if(name==='compare') renderCompare();
   btn.classList.add('active');
   if(name==='charts'||name==='career') setTimeout(renderCharts,100);
 }
@@ -967,7 +967,7 @@ function switchSeason(s) {
 // ── COMPARATIVO ──
 let _cmpChart = null;
 function renderCompare() {
-  if (!window.DATA) return;
+  if (typeof DATA === 'undefined' || !DATA) return;
   const cur = DATA.currentSeason || DATA.baseStats || {};
   const prv = DATA.prevSeason || DATA.baseStats || {};
 
