@@ -788,7 +788,7 @@ function renderMatchList() {
     <div class="match-row">
       <span style="color:var(--muted);font-size:11px">${m.date}</span>
       <span style="font-weight:600">${m.opp} <span style="font-size:10px;color:var(--muted)">${m.comp}</span><br>
-        <span style="font-size:11px;color:var(--muted)">${m.result}${m.yellow_card ? ' <span title="Cart\u00e3o amarelo" style="font-size:11px">\uD83D\uDFE8</span>' : ''}</span>${m.notes ? '<br><span style="font-size:10px;color:var(--gold);opacity:0.8;font-style:italic">' + m.notes + '</span>' : ''}${m.sub_on ? '<br><span style="font-size:10px;color:#6bb5ff;font-style:normal">↗ Entrou aos '+m.sub_on+''</span>' : ''}${m.goals > 0 ? '<br><span style="font-size:10px;font-weight:700;color:var(--green)">⚽ Gol</span>' : ''}</span>
+        <span style="font-size:11px;color:var(--muted)">${m.result}${m.yellow_card ? ' <span title="Cart\u00e3o amarelo" style="font-size:11px">\uD83D\uDFE8</span>' : ''}</span>${m.notes ? '<br><span style="font-size:10px;color:var(--gold);opacity:0.8;font-style:italic">' + m.notes + '</span>' : ''}${m.starter === false ? '<br><span style="font-size:10px;color:#6bb5ff;font-style:normal">↗ Reserva · Entrou aos '+(m.sub_on||'?')+''</span>' : (m.starter === true ? '<br><span style="font-size:10px;color:rgba(255,255,255,0.4);font-style:normal">⬛ Titular</span>' : '')}${m.goals > 0 ? '<br><span style="font-size:10px;font-weight:700;color:var(--green)">⚽ Gol</span>' : ''}</span>
       <span class="col-num">${m.mins}'</span>
       <span class="col-num" style="color:${+m.goals>0?'var(--gold)':'var(--muted)'}">${m.goals}</span>
       <span class="col-num" style="color:${+m.assists>0?'var(--blue)':'var(--muted)'}">${m.assists}</span>
