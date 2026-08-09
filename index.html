@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guilherme Smith — Análise de Desempenho</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
     --gold:#F5A623;--dark:#0D0D0D;--dark2:#161616;--dark3:#1E1E1E;--dark4:#252525;
@@ -155,14 +156,6 @@
   .compare-by-comp td:first-child{font-weight:600}
   .compare-by-comp td.gold{color:var(--gold);font-weight:700}
   .compare-bar-wrap{background:var(--dark2);border:1px solid var(--card-border);border-radius:16px;padding:24px;margin-bottom:28px}
-  .bonus-entry-card{background:linear-gradient(135deg,rgba(96,165,250,.12),rgba(255,255,255,.04));border:1px solid rgba(96,165,250,.25);border-radius:14px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px}
-  .bonus-match-row{display:flex;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;margin-bottom:10px;gap:10px}
-  .bonus-toggle-btn{background:none;border:2px solid currentColor;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;font-weight:700;flex-shrink:0;transition:all .2s;padding:0}
-  .bonus-summary-card{background:rgba(255,255,255,.05);border-radius:14px;padding:18px;margin-top:20px}
-  .bonus-sum-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:13px;color:rgba(255,255,255,.7)}
-  .bonus-sum-row:last-child{border-bottom:none}
-  .bonus-input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;color:#fff;font-size:11px;width:140px;outline:none}
-  .bonus-input:focus{border-color:rgba(96,165,250,.5)}
 </style>
 </head>
 <body>
@@ -196,7 +189,6 @@
   <button class="tab-btn" onclick="showTab('career',this)">Carreira</button>
   <button class="tab-btn" onclick="showTab('analysis',this)">Análise</button>
   <button class="tab-btn" onclick="showTab('compare',this)">&#9878; Comparativo</button>
-<button class="tab-btn" onclick="showTab('bonus',this)">💰 Bônus</button>
 </div>
 
 <div class="content">
@@ -440,19 +432,6 @@
     </div>
   </div>
 </div>
-<div id="tab-bonus" class="tab-panel">
-  <div class="bonus-entry-card">
-    <div style="flex:1">
-      <div style="font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Bônus de Entrada</div>
-      <div style="font-size:22px;font-weight:800;color:#60a5fa">€50.000 <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.4)">líquido</span></div>
-      <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px">€100.000 bruto &middot; 50% imposto &middot; Pago em 15/07/2026</div>
-    </div>
-    <button class="bonus-toggle-btn" id="entry-bonus-btn" onclick="toggleEntryBonus()">&#x25CB;</button>
-  </div>
-  <div class="section-title" style="margin-bottom:12px">Bônus por Jogo</div>
-  <div id="bonus-match-list"></div>
-  <div id="bonus-summary"></div>
-</div>
 </div><!-- /content -->
 </div><!-- /app -->
 
@@ -588,7 +567,7 @@ function mkChart(id, config, key) {
 function showTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active'); if(name==='compare') renderCompare(); if(name==='bonus') renderBonus();
+  document.getElementById('tab-'+name).classList.add('active'); if(name==='compare') renderCompare();
   btn.classList.add('active');
   if(name==='charts'||name==='career') setTimeout(renderCharts,100);
 }
@@ -1048,98 +1027,6 @@ function renderCompare() {
     }
   });
 }
-
-// ── Bônus Tab ──────────────────────────────────────────────────────
-function getResultType(r){var m=(r||'').match(/^(\d+)-(\d+)/);if(!m)return 'unknown';return +m[1]>+m[2]?'win':+m[1]<+m[2]?'loss':'draw';}
-
-function getBonusForMatch(m){
-  var key=(m.date||'')+'_'+(m.opp||'').replace(/[^a-zA-Z0-9]/g,'_');
-  var comp=m.comp||'';
-  if(comp==='Pro League'){
-    if(m.starter!==true)return{gross:0,net:0,editable:false,key:key,label:'Reserva · sem bônus'};
-    var rt=getResultType(m.result);
-    var rb=rt==='win'?2700:rt==='draw'?900:0;
-    var rl=rt==='win'?'Vitória €2.700':rt==='draw'?'Empate €900':'Derrota €0';
-    var gross=rb+1000;
-    return{gross:gross,net:Math.round(gross*0.5),editable:false,key:key,label:rl+' + Titular €1.000'};
-  }
-  var stored=parseInt(localStorage.getItem('bonusAmt_'+key)||'0')||0;
-  return{gross:stored,net:Math.round(stored*0.5),editable:true,key:key,label:comp};
-}
-
-function toggleEntryBonus(){
-  var cur=localStorage.getItem('entryBonusPaid');
-  localStorage.setItem('entryBonusPaid',cur==='1'?'0':'1');
-  renderBonus();
-}
-
-function toggleMatchBonus(key){
-  var cur=localStorage.getItem('bonusPaid_'+key);
-  localStorage.setItem('bonusPaid_'+key,cur==='1'?'0':'1');
-  renderBonus();
-}
-
-function saveBonusAmt(key,val){
-  localStorage.setItem('bonusAmt_'+key,parseInt(val)||0);
-  renderBonus();
-}
-
-function renderBonus(){
-  if(typeof DATA==='undefined'||!DATA)return;
-  var entryRaw=localStorage.getItem('entryBonusPaid');
-  if(entryRaw===null){localStorage.setItem('entryBonusPaid','1');entryRaw='1';}
-  var entryPaid=entryRaw==='1';
-  var eb=document.getElementById('entry-bonus-btn');
-  if(eb){eb.textContent=entryPaid?'✓':'○';eb.style.color=entryPaid?'var(--green)':'rgba(255,255,255,.3)';}
-
-  var matches=(DATA.matches||[]).filter(function(m){return m.season==='2026-27';});
-  var totGross=100000,totNet=50000,totRec=entryPaid?50000:0;
-  var html='';
-
-  for(var i=0;i<matches.length;i++){
-    var m=matches[i];
-    var b=getBonusForMatch(m);
-    var paid=localStorage.getItem('bonusPaid_'+b.key)==='1';
-    totGross+=b.gross;totNet+=b.net;
-    if(paid)totRec+=b.net;
-    var ds=(m.date||'').split('-').reverse().join('/');
-    var starterTxt=m.starter===false?'↗ Reserva':'⬛ Titular';
-    var starterCol=m.starter===false?'#6bb5ff':'rgba(255,255,255,.35)';
-    var netFmt=b.net.toLocaleString('pt-BR');
-    var grossFmt=b.gross.toLocaleString('pt-BR');
-    var amtHtml=b.gross>0
-      ?'<div style="font-size:14px;font-weight:700;color:#fff">€'+netFmt+'</div><div style="font-size:9px;color:rgba(255,255,255,.35)">líquido · €'+grossFmt+' bruto</div>'
-      :'<div style="font-size:12px;color:rgba(255,255,255,.25)">€0</div>';
-    var inputHtml=b.editable
-      ?'<div style="margin-top:6px;display:flex;align-items:center;gap:5px"><span style="font-size:10px;color:rgba(255,255,255,.4)">€</span><input class="bonus-input" type="number" min="0" placeholder="valor bruto" value="'+b.gross+'" data-key="'+b.key+'" onchange="saveBonusAmt(this.dataset.key,this.value)" /><span style="font-size:10px;color:rgba(255,255,255,.35)">bruto</span></div>'
-      :'';
-    var paidCol=paid?'var(--green)':'rgba(255,255,255,.3)';
-    var paidTxt=paid?'✓':'○';
-    html+='<div class="bonus-match-row">'
-      +'<div style="flex:1">'
-        +'<div style="font-size:12px;font-weight:600">'+m.opp+'</div>'
-        +'<div style="font-size:10px;color:rgba(255,255,255,.4)">'+ds+' · '+m.comp+' · <span style="color:'+starterCol+'">'+starterTxt+'</span></div>'
-        +'<div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:1px">'+b.label+'</div>'
-        +inputHtml
-      +'</div>'
-      +'<div style="text-align:right;margin-right:12px">'+amtHtml+'</div>'
-      +'<button class="bonus-toggle-btn" data-key="'+b.key+'" onclick="toggleMatchBonus(this.dataset.key)" style="color:'+paidCol+'">'+paidTxt+'</button>'
-    +'</div>';
-  }
-
-  var listEl=document.getElementById('bonus-match-list');
-  if(listEl)listEl.innerHTML=html;
-
-  var pend=totNet-totRec;
-  var sumEl=document.getElementById('bonus-summary');
-  if(sumEl)sumEl.innerHTML='<div class="bonus-summary-card">'
-    +'<div class="bonus-sum-row"><span>Total Bruto</span><span style="font-weight:600;color:#fff">€'+totGross.toLocaleString('pt-BR')+'</span></div>'
-    +'<div class="bonus-sum-row"><span>Total Líquido (50% imposto)</span><span style="font-weight:600;color:#fff">€'+totNet.toLocaleString('pt-BR')+'</span></div>'
-    +'<div class="bonus-sum-row" style="color:var(--green);font-weight:700;font-size:14px"><span>✓ Recebido</span><span>€'+totRec.toLocaleString('pt-BR')+'</span></div>'
-    +'<div class="bonus-sum-row" style="color:rgba(255,255,255,.45)"><span>⏳ Pendente</span><span>€'+pend.toLocaleString('pt-BR')+'</span></div>'
-    +'</div>';
-}
-
 </script>
 </body>
 </html>
