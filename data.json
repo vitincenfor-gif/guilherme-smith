@@ -143,7 +143,9 @@
       "shots_target": 1,
       "pass_pct": 100,
       "dribbles": 0,
-      "rating": 7.7
+      "rating": 7.7,
+      "sub_on": 68,
+      "starter": false
     },
     {
       "date": "2026-08-04",
@@ -160,7 +162,8 @@
       "dribbles": 0,
       "rating": 0,
       "yellow_card": true,
-      "notes": "1 assist (Florucz 45'+4')"
+      "notes": "1 assist (Florucz 45'+4')",
+      "starter": true
     },
     {
       "date": "2026-07-31",
@@ -176,7 +179,8 @@
       "pass_pct": 0,
       "dribbles": 0,
       "rating": 6.9,
-      "notes": "Substituído ao 71' (Niang). Union vence nos pênaltis 5-4 🏆"
+      "notes": "Substituído ao 71' (Niang). Union vence nos pênaltis 5-4 🏆",
+      "starter": true
     }
   ],
   "marketValueHistory": [
