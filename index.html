@@ -135,6 +135,27 @@
   ::-webkit-scrollbar{width:6px;height:6px}
   ::-webkit-scrollbar-track{background:var(--dark2)}
   ::-webkit-scrollbar-thumb{background:rgba(245,166,35,0.3);border-radius:3px}
+
+  .season-switcher{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .season-pill{background:var(--dark3);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s}
+  .season-pill.active{background:var(--gold);color:#000;border-color:var(--gold)}
+  .section-header{display:flex;align-items:center;margin-bottom:20px}
+  .section-header .section-title{margin-bottom:0}
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px}
+  .compare-card{background:var(--dark2);border:1px solid var(--card-border);border-radius:16px;padding:24px}
+  .compare-season-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+  .compare-season-label span{color:var(--gold);font-weight:700}
+  .compare-stat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .compare-stat-row:last-child{border-bottom:none}
+  .compare-stat-label{font-size:12px;color:var(--muted)}
+  .compare-stat-value{font-size:22px;font-weight:800;color:var(--gold)}
+  .compare-by-comp{background:var(--dark2);border:1px solid var(--card-border);border-radius:16px;padding:24px}
+  .compare-by-comp table{width:100%;border-collapse:collapse;font-size:13px}
+  .compare-by-comp th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .compare-by-comp td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,0.04)}
+  .compare-by-comp td:first-child{font-weight:600}
+  .compare-by-comp td.gold{color:var(--gold);font-weight:700}
+  .compare-bar-wrap{background:var(--dark2);border:1px solid var(--card-border);border-radius:16px;padding:24px;margin-bottom:28px}
 </style>
 </head>
 <body>
@@ -167,13 +188,14 @@
   <button class="tab-btn" onclick="showTab('charts',this)">Gráficos</button>
   <button class="tab-btn" onclick="showTab('career',this)">Carreira</button>
   <button class="tab-btn" onclick="showTab('analysis',this)">Análise</button>
+  <button class="tab-btn" onclick="showTab('compare',this)">&#9878; Comparativo</button>
 </div>
 
 <div class="content">
 
 <!-- OVERVIEW -->
 <div id="tab-overview" class="tab-panel active">
-  <div class="section-title">Nível Atual</div>
+  <div class="section-header"><div class="section-title">Nível Atual</div><div class="season-switcher"><button class="season-pill active" id="pill-current" onclick="switchSeason('current')">2026–27</button><button class="season-pill" id="pill-prev" onclick="switchSeason('prev')">2025–26</button></div></div>
   <div class="level-section">
     <div>
       <div class="level-title">Performance Rating</div>
@@ -385,6 +407,31 @@
   </div>
 </div>
 
+
+<!-- COMPARE -->
+<div id="tab-compare" class="tab-panel">
+  <div class="compare-grid">
+    <div class="compare-card">
+      <div class="compare-season-label">Temporada <span>2026–27</span></div>
+      <div id="cmp-cur"></div>
+    </div>
+    <div class="compare-card">
+      <div class="compare-season-label">Temporada <span>2025–26</span></div>
+      <div id="cmp-prv"></div>
+    </div>
+  </div>
+  <div class="compare-bar-wrap">
+    <div class="section-title" style="margin-bottom:20px">Comparativo Visual</div>
+    <canvas id="compareChart" height="110"></canvas>
+  </div>
+  <div class="compare-by-comp">
+    <div class="section-title" style="margin-bottom:16px">Por Competição</div>
+    <div class="compare-grid" style="gap:16px">
+      <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">2026–27</div><table id="cmp-comp-cur"></table></div>
+      <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">2025–26</div><table id="cmp-comp-prv"></table></div>
+    </div>
+  </div>
+</div>
 </div><!-- /content -->
 </div><!-- /app -->
 
@@ -477,6 +524,7 @@ function getDefaultData() {
 // HELPERS
 // ═══════════════════════════════════════════
 function getStats() {
+  if (window.activeSeason === 'prev') return { ...(DATA.prevSeason || DATA.baseStats), manual:false };
   const cs = DATA.currentSeason || DATA.baseStats;
   const m = DATA.matches || [];
   if (!m.length) return { ...cs, manual:false };
@@ -519,7 +567,7 @@ function mkChart(id, config, key) {
 function showTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active'); if(id==='compare') renderCompare();
   btn.classList.add('active');
   if(name==='charts'||name==='career') setTimeout(renderCharts,100);
 }
@@ -604,7 +652,8 @@ function renderOverview() {
       <div class="lbl">${c.lbl}</div><div class="sub">${c.sub}</div>
     </div>`).join('');
 
-  const comps = DATA.currentSeason?.byCompetition || DATA.baseStats.byCompetition;
+  const _actSD = window.activeSeason === 'prev' ? DATA.prevSeason : DATA.currentSeason;
+  const comps = _actSD?.byCompetition || DATA.baseStats.byCompetition;
   mkChart('goalsCompChart',{
     type:'bar',
     data:{labels:comps.map(c=>c.emoji+' '+c.name),datasets:[
@@ -739,7 +788,7 @@ function renderMatchList() {
     <div class="match-row">
       <span style="color:var(--muted);font-size:11px">${m.date}</span>
       <span style="font-weight:600">${m.opp} <span style="font-size:10px;color:var(--muted)">${m.comp}</span><br>
-        <span style="font-size:11px;color:var(--muted)">${m.result}${m.yellow_card ? ' <span title="Cart\u00e3o amarelo" style="font-size:11px">\uD83D\uDFE8</span>' : ''}</span>${m.notes ? '<br><span style="font-size:10px;color:var(--gold);opacity:0.8;font-style:italic">' + m.notes + '</span>' : ''}</span>
+        <span style="font-size:11px;color:var(--muted)">${m.result}${m.yellow_card ? ' <span title="Cart\u00e3o amarelo" style="font-size:11px">\uD83D\uDFE8</span>' : ''}</span>${m.notes ? '<br><span style="font-size:10px;color:var(--gold);opacity:0.8;font-style:italic">' + m.notes + '</span>' : ''}${m.sub_on ? '<br><span style="font-size:10px;color:#6bb5ff;font-style:normal">↗ Entrou aos '+m.sub_on+''</span>' : ''}${m.goals > 0 ? '<br><span style="font-size:10px;font-weight:700;color:var(--green)">⚽ Gol</span>' : ''}</span>
       <span class="col-num">${m.mins}'</span>
       <span class="col-num" style="color:${+m.goals>0?'var(--gold)':'var(--muted)'}">${m.goals}</span>
       <span class="col-num" style="color:${+m.assists>0?'var(--blue)':'var(--muted)'}">${m.assists}</span>
@@ -900,6 +949,84 @@ function renderCharts() {
 
 // ── INIT ──
 loadData();
+
+
+// ── SEASON SWITCHER ──
+window.activeSeason = 'current';
+function switchSeason(s) {
+  window.activeSeason = s;
+  document.getElementById('pill-current').classList.toggle('active', s === 'current');
+  document.getElementById('pill-prev').classList.toggle('active', s === 'prev');
+  const prevGrid = document.getElementById('prev-stats-grid');
+  const prevTitle = prevGrid && prevGrid.previousElementSibling;
+  if (prevGrid) prevGrid.style.display = s === 'prev' ? 'none' : '';
+  if (prevTitle) prevTitle.style.display = s === 'prev' ? 'none' : '';
+  renderOverview();
+}
+
+// ── COMPARATIVO ──
+let _cmpChart = null;
+function renderCompare() {
+  if (!window.DATA) return;
+  const cur = DATA.currentSeason || DATA.baseStats || {};
+  const prv = DATA.prevSeason || DATA.baseStats || {};
+
+  function statRows(s, other) {
+    const fields = [
+      {label:'Jogos', key:'apps'},
+      {label:'Gols', key:'goals'},
+      {label:'Assistências', key:'assists'},
+      {label:'Minutos', key:'mins'},
+      {label:'Nota Média', key:'rating'},
+    ];
+    return fields.map(f => {
+      const val = s[f.key] ?? 0;
+      const otherVal = other[f.key] ?? 0;
+      let cls = '';
+      if (f.key !== 'apps' && f.key !== 'mins') {
+        cls = val > otherVal ? ' better' : (val < otherVal ? ' worse' : '');
+      }
+      return '<div class="compare-stat-row"><span class="compare-stat-label">' + f.label + '</span><span class="compare-stat-value' + cls + '">' + val + '</span></div>';
+    }).join('');
+  }
+
+  document.getElementById('cmp-cur').innerHTML = statRows(cur, prv);
+  document.getElementById('cmp-prv').innerHTML = statRows(prv, cur);
+
+  function compTable(byComp) {
+    if (!byComp || !byComp.length) return '<tr><td colspan="4" style="color:var(--muted);padding:10px">Sem dados</td></tr>';
+    return '<thead><tr><th>Competição</th><th>J</th><th>G</th><th>A</th></tr></thead><tbody>' +
+      byComp.map(c => '<tr><td>' + (c.emoji||'') + ' ' + c.name + '</td><td class="gold">' + c.apps + '</td><td class="gold">' + c.goals + '</td><td class="gold">' + c.assists + '</td></tr>').join('') +
+      '</tbody>';
+  }
+  document.getElementById('cmp-comp-cur').innerHTML = compTable(cur.byCompetition);
+  document.getElementById('cmp-comp-prv').innerHTML = compTable(prv.byCompetition);
+
+  const labels = ['Gols','Assistências','Jogos','Nota×10'];
+  const curData = [cur.goals||0, cur.assists||0, cur.apps||0, Math.round((cur.rating||0)*10)];
+  const prvData = [prv.goals||0, prv.assists||0, prv.apps||0, Math.round((prv.rating||0)*10)];
+
+  const ctx = document.getElementById('compareChart').getContext('2d');
+  if (_cmpChart) _cmpChart.destroy();
+  _cmpChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {label: cur.label||'2026–27', data: curData, backgroundColor: '#d4a843cc', borderRadius:6},
+        {label: prv.label||'2025–26', data: prvData, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius:6}
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {legend:{labels:{color:'#e0d8c8',font:{size:12}}}},
+      scales: {
+        x:{ticks:{color:'#9e9070'},grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{ticks:{color:'#9e9070'},grid:{color:'rgba(255,255,255,0.05)'},beginAtZero:true}
+      }
+    }
+  });
+}
 </script>
 </body>
 </html>
